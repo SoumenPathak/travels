@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Solver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #343a40;
+            margin-top: 20px;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        .city-input {
+            margin-bottom: 10px;
+        }
+
+        .distance-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the TSP Solver!</h1>
+        <p>This application helps you solve the Traveling Salesman Problem (TSP) effectively.</p>
+
+        <h2>Why Use This App?</h2>
+        <p>The Traveling Salesman Problem is a classic optimization problem in computer science and operations research. It involves finding the shortest possible route that visits a list of cities and returns to the origin city.</p>
+        <p>By using this app, you can:</p>
+        <ul>
+            <li>Efficiently calculate the optimal path for traveling between cities.</li>
+            <li>Understand the distances involved in your travel plans.</li>
+            <li>Save time and resources in planning routes.</li>
+        </ul>
+
+        <h2>Get Started</h2>
+        <form id="tspForm" action="/solveTSP" method="post">
+            <div id="cityContainer">
+                <div class="city-input">
+                    <label for="cityName">City Name:</label>
+                    <input type="text" name="cityName" required>
+                </div>
+            </div>
+            <button type="button" onclick="addCity()">Add Another City</button>
+            <button type="button" onclick="showDistanceInputs()">Next: Enter Distances</button><br><br>
+            
+            <div class="distance-container" id="distanceContainer"></div>
+
+            <input type="submit" value="Solve" style="display:none;" id="submitBtn">
+        </form>
+        <p class="error" th:if="${error}">[[${error}]]</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 TSP Solver. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const cities = [];
+
+        function addCity() {
+            const cityNameInput = document.createElement('div');
+            cityNameInput.className = 'city-input';
+            cityNameInput.innerHTML = `
+                <label for="cityName">City Name:</label>
+                <input type="text" name="cityName" required>
+            `;
+            document.getElementById('cityContainer').appendChild(cityNameInput);
+        }
+
+        function showDistanceInputs() {
+            const cityInputs = document.querySelectorAll('input[name="cityName"]');
+            const distanceContainer = document.getElementById('distanceContainer');
+            distanceContainer.innerHTML = ''; // Clear previous distances
+            cities.length = 0; // Reset cities array
+
+            // Get city names
+            cityInputs.forEach(input => {
+                if (input.value) {
+                    cities.push(input.value);
+                }
+            });
+
+            // Create distance inputs
+            cities.forEach((city, index) => {
+                const distanceInputRow = document.createElement('div');
+                distanceInputRow.className = 'distance-input';
+                distanceInputRow.innerHTML = `<h3>Distances from ${city}</h3>`;
+                
+                cities.forEach((otherCity, otherIndex) => {
+                    if (index !== otherIndex) {
+                        distanceInputRow.innerHTML += `
+                            <label for="distance-${index}-${otherIndex}">Distance to ${otherCity}:</label>
+                            <input type="number" name="distance" required id="distance-${index}-${otherIndex}">
+                        `;
+                    }
+                });
+
+                distanceContainer.appendChild(distanceInputRow);
+            });
+
+            distanceContainer.style.display = 'block'; // Show distance inputs
+            document.getElementById('submitBtn').style.display = 'inline'; // Show submit button
+        }
+    </script>
+</body>
+</html>
